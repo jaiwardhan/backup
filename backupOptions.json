@@ -1,0 +1,19 @@
+{
+    "add": [
+        "/Users/jswarnakar/Documents/Bills"
+    ],
+    "ignore": [
+        "/Users/jswarnakar/Documents/Bills/"
+    ],
+    "storage": {
+        "destination": "/Volumes/Seagate Backup Plus Drive/",
+        "overwrite_existing": true,
+        "cleanup_copied": true,
+        "dir": "mac-05335A-JSWARNAKAR"
+    },
+    "recover": {
+        "destination": "/",
+        "owner": "jswarnakar",
+        "group": "staff"
+    }
+}
