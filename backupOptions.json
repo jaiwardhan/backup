@@ -7,9 +7,9 @@
     ],
     "storage": {
         "destination": "/Volumes/Seagate Backup Plus Drive/",
+        "dir": "mac-05335A-JSWARNAKAR",
         "overwrite_existing": true,
-        "cleanup_copied": true,
-        "dir": "mac-05335A-JSWARNAKAR"
+        "cleanup_copied": true
     },
     "recover": {
         "destination": "/",
