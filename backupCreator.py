@@ -11,8 +11,6 @@ import shutil
 '''
 Backup loading configuration
 '''
-
-
 class Configuration:
     @staticmethod
     def get():
@@ -20,9 +18,16 @@ class Configuration:
             "file": "backupOptions.json"
         }
 
-
+'''
+Disk operations utils
+'''
 class Disk:
 
+    # Gets all files at a specified base_path.
+    # If its a file, then it is returned as is in a list.
+    # @param    String      A string path
+    # @return   List        Returns a list of files present at 
+    #                       the specified path
     @staticmethod
     def get_all_files(base_path):
         if os.path.isfile(base_path):
@@ -34,6 +39,9 @@ class Disk:
                 output_files.append(os.path.join(root, each_file))
         return output_files
 
+    # Gets the size in bytes for a file or a list of files
+    # @param    String|List     A file path or list of file paths
+    # @return   int             Size in bytes
     @staticmethod
     def get_size(path):
         if type(path) is not list:
@@ -44,6 +52,10 @@ class Disk:
             tot_size_by = tot_size_by + fs_data.st_size
         return tot_size_by
 
+    # Returns all files on all the add paths excluding
+    # files present at/under exclude paths
+    # @param    List    A list of paths to be included
+    # @param    List    A list of paths to be excluded
     @staticmethod
     def get_all_paths(add=[], exclude=[]):
         i = 0
@@ -73,8 +85,6 @@ class Disk:
 '''
 Utilities to get simple small tasks get done
 '''
-
-
 class Utils:
     animating = False
     Colors = {
@@ -101,6 +111,10 @@ class Utils:
 
         return prepend + msg + " " + Utils.Colors['ENDC']
 
+    # Reads a file contents
+    # @param    String      A file path to be read
+    # @param    Bool        True if to be ready by line | False otherwise
+    # @return   String|List File contents
     @staticmethod
     def get_file_contents(file_path, by_line=False):
         contents = ""
@@ -110,7 +124,10 @@ class Utils:
             else:
                 contents = f.read()
         return contents
-
+    
+    # Reads a json file contents
+    # @param    String      A json file path to read
+    # @return   JSON Obj    File contents
     @staticmethod
     def get_file_json_contents(file_path):
         json_content = {}
@@ -118,10 +135,16 @@ class Utils:
         json_content = json.loads(file_content)
         return json_content
 
+    # Logger method for easy future control
+    # @param    String      Something to log
+    # @param    String      mode from Colors
     @staticmethod
     def log(msg="", mode = None):
         print(Utils.encapsulate_colors(msg, mode))
 
+    # Logger which just adds a new line after the job is done
+    # @param    String      Something to log
+    # @param    String      mode from Colors
     @staticmethod
     def log_ln(msg="", mode = None):
         Utils.log(msg, mode)
@@ -146,6 +169,10 @@ class Utils:
             sys.stdout.flush()
             time.sleep(0.1)
     
+    # Gets user input from command line
+    # @params   String      A prompt message to show
+    # @param    Bool        True if to use raw_input | False for input
+    # @return   Mixed       User input via command line
     @staticmethod
     def get_user_input(msg, raw = True):
         if raw:
@@ -153,13 +180,22 @@ class Utils:
         else:
             return input(msg)
 
+    # Exits the program if True is passed
+    # @param    Bool        True if to exit | False otherwise
     @staticmethod
     def exit_if_fail(failed = True):
         if failed:
             sys.exit()
 
 
+'''
+A set of utils for Tabular data (List<List|*>)
+'''
 class Table:
+    
+    # Gets the max lengths of all cols
+    # @param    Table       A table to be checked
+    # @return   List        max lengths of data in each col
     @staticmethod
     def col_max_lengths(tabular_data):
         total_cols = len(tabular_data[0])
@@ -175,6 +211,12 @@ class Table:
             r = r + 1
         return max_lengths
 
+    # Gets col value in a table
+    # @param    Table       The table to be examined
+    # @param    int         The row number to be queried
+    # @param    String|*    The row which has got this value at col 0
+    # @param    int         The col index at the found row
+    # @param    Bool        If all occurrences need to be returned
     @staticmethod
     def get_col_val(tabular_data, row_num=None, row_value=None, col_index=1, return_all=False):
         if row_num is not None:
@@ -193,6 +235,11 @@ class Table:
         else:
             return None
 
+    # Prints a taable in a pretty way
+    # @param    Table       The table to be printed
+    # @param    String      Prefix at the start of each printed line
+    # @param    String      Seperator between two cols
+    # @param    String      padding between seperator and cell values
     @staticmethod
     def print_tabular(tabular_data, start_prefix="", seperator="|", seperator_pad=" "):
         total_cols = len(tabular_data[0])
@@ -233,21 +280,30 @@ class Table:
         ))
 
 
+'''
+Shell utilities
+'''
 class Shell:
-
+    # Runs a shell command and gets back any output
+    # @param    List    A command broken down into a list
     @staticmethod
     def run(args):
         p = subprocess.Popen(args, stdout=subprocess.PIPE)
         return p.communicate()
 
-
+'''
+Volume specific operations and data
+holder for respective properties
+'''
 class Volume:
+    # @param    String      The path of volume under scanner
     def __init__(self, path):
         if path is not None:
             self.mount_point = path
             vol_data = Volume.get_stats(path)
             self.load_df_data(vol_data)
 
+    # Loads an file system data into the obj
     def load_df_data(self, fs_data):
         self.block_size = fs_data.f_frsize
         self.free = fs_data.f_bavail
@@ -266,15 +322,23 @@ class Volume:
     def get_used(self):
         return self.used * self.block_size
 
+    # Gets the stats at a path
+    # @param    String      The path to get the stats for
     @staticmethod
     def get_stats(path):
         vol_data = os.statvfs(path)
         return vol_data
-
+    
+    # Converts bytes to GiB data
+    # @param    int     Total bytes
+    # @param    int     Block size (bytes)
     @staticmethod
     def bytes_to_gb(s_bytes, block_size=1):
         return math.ceil((s_bytes / (1024.0**3))*block_size)
 
+    # Describes a volume object and prints to console
+    # @param    obj(Volume)     The object to be described
+    # @param    String          A prefix to be accompanied with the op
     @staticmethod
     def desc(volume_obj, prefix=""):
         table = [
@@ -294,8 +358,6 @@ class Volume:
 '''
 Backup method creator and manager
 '''
-
-
 class Backup:
     def init(self):
         configuration = Configuration.get()
@@ -319,6 +381,9 @@ class Backup:
         Utils.log("\tPaths to add: " + str(len(self.add_paths)))
         Utils.log_ln("\tExclude Paths: " + str(len(self.exclude_paths)))
 
+    # Loads all volumes and their properties
+    # @param    Bool        True if running on create mode |
+    #                       False if running on recovery mode
     def load_volumes(self, create = True):
         Utils.log("* Loading volumes: ")
         Utils.log("\t\_ External Volume..")
@@ -339,6 +404,11 @@ class Backup:
             Utils.done_wait()
         Utils.log()
 
+    # Checks if disks can accommodate the incoming data.
+    # If in create mode, then checks the volume
+    # If in recovery mode, checks the running FS from recover
+    # @param    Bool        True if running on create mode |
+    #                       False if running on recovery mode
     def check_disks(self, create = True):
         Utils.log("* Examining volumes: ")
         Utils.log("\t\_ External volume => ")
@@ -376,6 +446,12 @@ class Backup:
         Utils.log()
         return can_copy
 
+    # Starts data replication
+    # If in create mode, then checks the volume
+    # If in recovery mode, checks the running FS from recover
+    # @param    Bool        True if the copy is signalled 'go-ahead'
+    # @param    Bool        True if running on create mode |
+    #                       False if running on recovery mode
     def start_copying(self, can_copy, create = True):
         if not can_copy:
             Utils.log("Aborting copy", "FAIL")
@@ -445,7 +521,7 @@ class Backup:
         can_copy = self.check_disks(mode == "create")
         self.start_copying(can_copy, mode == "create")
 
-
+# Doc helper
 def help():
     Utils.log("Backup program usage..")
     Utils.log("Use sudo if there are files which need to be backedup/recovered with admin rights")
