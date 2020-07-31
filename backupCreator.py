@@ -547,7 +547,7 @@ desc = {
     "recover": "==> RECOVER\t: Attempting to recover from a previous back with the configuration"
 }
 
-if len(sys.argv) == 0 or sys.argv[1] not in modes:
+if len(sys.argv) <= 1 or sys.argv[1] not in modes:
     help() 
     sys.exit()
 
