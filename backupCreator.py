@@ -83,7 +83,7 @@ class Disk:
         # Exclude any paths included by substring
         for i in exclude:
             for k in unique_files_add.keys():
-                if i in k and str(k).index(i) == 0:
+                if i in k.encode('ascii', 'ignore') and k.encode('ascii', 'ignore').index(i) == 0:
                     del unique_files_add[k]
         for i in exclude_files:
             if i in unique_files_add:
