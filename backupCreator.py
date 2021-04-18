@@ -48,6 +48,9 @@ class Disk:
             path = [path]
         tot_size_by = 0
         for each_path in path:
+            # Skip if symlink, which is sad
+            if os.path.islink(each_path):
+                continue
             fs_data = os.stat(each_path)
             tot_size_by = tot_size_by + fs_data.st_size
         return tot_size_by
@@ -76,6 +79,12 @@ class Disk:
 
         for i in add_files:
             unique_files_add[i] = True
+        # Fix Issue-#2:
+        # Exclude any paths included by substring
+        for i in exclude:
+            for k in unique_files_add.keys():
+                if i in k and str(k).index(i) == 0:
+                    del unique_files_add[k]
         for i in exclude_files:
             if i in unique_files_add:
                 del unique_files_add[i]
